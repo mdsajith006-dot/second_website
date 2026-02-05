@@ -13,6 +13,8 @@ const quizData = [
 
 let currentQuestion = 0;
 let score = 0;
+let timeLeft = 15;
+let timer = null; 
 
 const questionEl = document.getElementById("question");
 const options = document.querySelectorAll(".option");
@@ -20,6 +22,25 @@ const scoreEl = document.getElementById("score");
 const restartBtn = document.getElementById("restartBtn");
 const optionsList = document.getElementById("optionsList");
 const nextBtn = document.getElementById("nextBtn");
+const timerEl = document.getElementById("timer");
+
+function startTimer() {
+    clearInterval(timer);
+    timeLeft = 15;
+    timerEl.textContent = `⏱ Time: ${timeLeft}`;
+
+    timer = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = `⏱ Time: ${timeLeft}`;
+
+        if (timeLeft === 0) {
+            clearInterval(timer);
+            showCorrectAnswer();
+            setTimeout(nextQuestion, 1000);
+        }
+    }, 1000);
+}
+
 
 function loadQuestion() {
     const q = quizData[currentQuestion];
@@ -30,6 +51,8 @@ function loadQuestion() {
         btn.classList.remove("correct", "wrong");
         btn.disabled = false;
     });
+
+    startTimer();
 }
 
 function checkAnswer(selected) {
@@ -43,6 +66,11 @@ function checkAnswer(selected) {
         score++;
     }
 
+    options.forEach(btn => btn.disabled = true);
+}
+function showCorrectAnswer() {
+    const correctIndex = quizData[currentQuestion].answer;
+    options[correctIndex].classList.add("correct");
     options.forEach(btn => btn.disabled = true);
 }
 
@@ -72,11 +100,13 @@ function restartQuiz() {
     loadQuestion();
 }
 
-function closeQuiz() {
+function closeQuiz() {    
+    clearInterval(timer);
     document.querySelector(".quiz-container").style.display = "none";
 }
 
 function finishQuiz() {
+    clearInterval(timer);
     questionEl.textContent = "Quiz Finished!";
     optionsList.style.display = "none";
     nextBtn.style.display = "none";
@@ -85,3 +115,4 @@ function finishQuiz() {
 }
 
 loadQuestion();
+
